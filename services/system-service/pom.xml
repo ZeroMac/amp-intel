@@ -11,5 +11,5 @@
         <relativePath>../../platform-parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>user-service</artifactId>
+    <artifactId>system-service</artifactId>
 </project>
