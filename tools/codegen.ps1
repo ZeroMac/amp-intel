@@ -6,7 +6,6 @@ param(
 $ErrorActionPreference = "Stop"
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $toolsPom = Join-Path $PSScriptRoot "pom.xml"
-$codegenPom = Join-Path $PSScriptRoot "mybatis-flex-codegen/pom.xml"
 $runningOnWindows = $env:OS -eq "Windows_NT"
 $mvnw = if ($runningOnWindows) { Join-Path $repoRoot "mvnw.cmd" } else { Join-Path $repoRoot "mvnw" }
 
@@ -21,7 +20,7 @@ try {
         throw "Codegen bootstrap failed with exit code $LASTEXITCODE"
     }
 
-    & $mvnw -f $codegenPom compile exec:java "-Dexec.args=$Profile"
+    & $mvnw -f $toolsPom -pl :mybatis-flex-codegen compile exec:java "-Dexec.args=$Profile"
     if ($LASTEXITCODE -ne 0) {
         throw "Codegen failed with exit code $LASTEXITCODE"
     }
