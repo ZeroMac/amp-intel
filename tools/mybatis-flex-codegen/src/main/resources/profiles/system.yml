@@ -1,5 +1,5 @@
 module: services/system-service
-basePackage: com.trade.platform.system
+basePackage: com.hl.platform.system
 tablePrefix: sys_
 schema: public
 tables:
@@ -7,4 +7,4 @@ tables:
   - sys_role
   - sys_user_role
   - sys_function
-  - sys_rights
+  - sys_right
