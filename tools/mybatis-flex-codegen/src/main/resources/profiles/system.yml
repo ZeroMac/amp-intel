@@ -1,0 +1,10 @@
+module: services/system-service
+basePackage: com.trade.platform.system
+tablePrefix: sys_
+schema: public
+tables:
+  - sys_user
+  - sys_role
+  - sys_user_role
+  - sys_function
+  - sys_rights
