@@ -10,6 +10,8 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>../platform-bom</module>
+        <module>../platform-parent</module>
         <module>mybatis-flex-codegen</module>
     </modules>
 </project>
