@@ -31,3 +31,37 @@ mvnw.cmd clean verify
 ```bash
 ./mvnw -pl services/<service-name> -am clean verify
 ```
+
+## Service Structure
+
+采用传统 MVC 分层：
+
+`Controller -> Service -> MyBatis-Flex Mapper -> PostgreSQL`
+
+目录约定：
+
+```text
+service-name/
+└─ src/main/java/...
+   ├─ controller/
+   ├─ service/
+   │  └─ impl/
+   ├─ mapper/
+   ├─ entity/
+   ├─ dto/
+   ├─ vo/
+   ├─ config/
+   └─ *Application.java
+```
+
+约束：
+
+* Controller：处理 HTTP 请求和响应，不写业务逻辑。
+* Service：业务逻辑、事务、跨 Mapper 组合。
+* Mapper：继承 MyBatis-Flex `BaseMapper<T>`，负责数据库访问。
+* Entity：数据库表映射。
+* DTO：接口输入模型。
+* VO：接口输出模型。
+* 不额外增加 Repository/DAO 层，避免无意义封装。
+* 复杂 SQL 放 Mapper 或对应 XML。
+
