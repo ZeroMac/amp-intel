@@ -1,7 +1,7 @@
 package com.trade.platform.codegen;
 
-import com.mybatis.flex.codegen.Generator;
-import com.mybatis.flex.codegen.config.GlobalConfig;
+import com.mybatisflex.codegen.Generator;
+import com.mybatisflex.codegen.config.GlobalConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.yaml.snakeyaml.Yaml;
 
@@ -39,7 +39,7 @@ public final class CodegenApplication {
         }
         if (profile.getTables() != null && !profile.getTables().isEmpty()) {
             globalConfig.getStrategyConfig()
-                    .setGenerateTables(profile.getTables().toArray(String[]::new));
+                    .setGenerateTable(profile.getTables().toArray(String[]::new));
         }
 
         globalConfig.enableEntity().setJdkVersion(21);
