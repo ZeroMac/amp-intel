@@ -1,4 +1,4 @@
-package com.trade.platform.codegen;
+package com.hl.platform.codegen;
 
 import java.util.ArrayList;
 import java.util.List;

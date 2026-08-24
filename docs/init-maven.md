@@ -114,7 +114,7 @@ platform-parent
 5. 坐标先统一使用：
 
 ```text
-groupId: com.trade.platform
+groupId: com.hl.platform
 version: 0.1.0-SNAPSHOT
 ```
 

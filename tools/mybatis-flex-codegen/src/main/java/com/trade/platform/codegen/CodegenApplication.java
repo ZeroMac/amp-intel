@@ -1,4 +1,4 @@
-package com.trade.platform.codegen;
+package com.hl.platform.codegen;
 
 import com.mybatisflex.codegen.Generator;
 import com.mybatisflex.codegen.config.GlobalConfig;
