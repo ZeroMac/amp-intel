@@ -2,8 +2,8 @@ package com.hl.platform.gateway.security;
 
 import java.time.Duration;
 
+import com.hl.platform.base.security.AuthCacheKeys;
 import com.hl.platform.gateway.cache.AuthCacheJsonCodec;
-import com.hl.platform.gateway.cache.AuthCacheKeys;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
