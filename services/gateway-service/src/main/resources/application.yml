@@ -1,3 +1,6 @@
+server:
+  port: 8087
+
 spring:
   application:
     name: gateway-service
@@ -23,4 +26,4 @@ spring:
 
 security:
   jwt:
-    secret: ${JWT_SECRET:}
+    secret: ${JWT_SECRET:0123456789abcdef0123456789abcdef}
