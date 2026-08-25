@@ -3,6 +3,7 @@ package com.hl.platform.gateway.cache;
 import java.time.Duration;
 import java.util.List;
 
+import com.hl.platform.base.security.AuthCacheKeys;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.type.TypeReference;
