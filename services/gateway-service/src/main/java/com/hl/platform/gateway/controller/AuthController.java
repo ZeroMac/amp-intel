@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     private final AuthSessionService authSessionService;
