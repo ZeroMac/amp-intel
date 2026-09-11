@@ -29,6 +29,9 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import tools.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,6 +54,30 @@ class PermissionChainTest {
     void setUp() {
         reset(values, service);
         mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+    }
+
+    @Test
+    void publicEndpointSkipsInternalIdentityAndAuthorityLookup() throws Exception {
+        mvc.perform(get("/system/public/test")).andExpect(status().isOk());
+        mvc.perform(get("/system/public/test").header(AuthHeaders.USER_ID, "forged")
+                .header(AuthHeaders.SIGNATURE, "invalid")).andExpect(status().isOk());
+        verifyNoInteractions(values, service);
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+    }
+
+    @Test
+    void misplacedPublicSegmentAndExtraDepthStayProtected() throws Exception {
+        for (String path : new String[]{"/system/user/public/test", "/system/public/test/other",
+                "/api/system/public/test", "/system/publicity/test"}) {
+            mvc.perform(get(path)).andExpect(status().isUnauthorized());
+        }
+        verifyNoInteractions(values, service);
+    }
+
+    @Test
+    void publicPathIsRelativeToServletContext() throws Exception {
+        mvc.perform(get("/app/system/public/test").contextPath("/app")).andExpect(status().isOk());
+        verifyNoInteractions(values, service);
     }
 
     @Test
@@ -127,7 +154,7 @@ class PermissionChainTest {
 
     @Configuration
     @EnableWebMvc
-    @Import(FunctionController.class)
+    @Import({FunctionController.class, PublicController.class})
     @ImportAutoConfiguration(PlatformSecurityAutoConfiguration.class)
     static class TestConfig {
         @Bean FunctionService functionService() { return mock(FunctionService.class); }
@@ -137,6 +164,16 @@ class PermissionChainTest {
             var redis = mock(StringRedisTemplate.class);
             when(redis.opsForValue()).thenReturn(values);
             return new RedisAuthorityCacheReader(redis, new ObjectMapper());
+        }
+    }
+
+    @RestController
+    static class PublicController {
+        @GetMapping("/system/public/test")
+        String test() {
+            assertThat(SecurityContextHolder.getContext().getAuthentication())
+                    .isInstanceOf(AnonymousAuthenticationToken.class);
+            return "ok";
         }
     }
 }

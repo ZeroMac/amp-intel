@@ -1,6 +1,9 @@
 package com.hl.platform.gateway.config;
 
 import java.nio.charset.StandardCharsets;
+import com.hl.platform.base.security.PublicApiPaths;
+import org.springframework.security.oauth2.server.resource.web.server.authentication.ServerBearerTokenAuthenticationConverter;
+import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +27,8 @@ import reactor.core.publisher.Mono;
 
 @Configuration
 public class SecurityConfig {
+    private static final PathPatternParserServerWebExchangeMatcher PUBLIC_API =
+            new PathPatternParserServerWebExchangeMatcher(PublicApiPaths.GATEWAY);
 
     private static final byte[] UNAUTHORIZED_BODY =
             "{\"code\":401,\"message\":\"Unauthorized\"}".getBytes(StandardCharsets.UTF_8);
@@ -41,6 +46,7 @@ public class SecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchange -> exchange
+                        .matchers(PUBLIC_API).permitAll()
                         .pathMatchers("/auth/login", "/auth/refresh", "/actuator/health").permitAll()
                         .anyExchange().authenticated()
                 )
@@ -49,6 +55,9 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
+                        .bearerTokenConverter(exchange -> PUBLIC_API.matches(exchange)
+                                .flatMap(match -> match.isMatch() ? Mono.empty()
+                                        : new ServerBearerTokenAuthenticationConverter().convert(exchange)))
                         .authenticationManagerResolver(exchange -> Mono.just(authenticationManager))
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .authenticationFailureHandler(authenticationFailureHandler(authenticationEntryPoint))

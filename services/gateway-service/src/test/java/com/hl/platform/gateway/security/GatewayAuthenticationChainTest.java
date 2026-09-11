@@ -36,6 +36,11 @@ class GatewayAuthenticationChainTest {
         var forwarding = new InternalAuthHeadersFilter(SECRET);
         client = WebTestClient.bindToWebHandler(exchange -> forwarding.filter(exchange, downstream -> {
             var headers = downstream.getRequest().getHeaders();
+            if (downstream.getRequest().getPath().value().equals("/api/system/public/test")) {
+                assertThat(headers.headerNames()).noneMatch(name ->
+                        name.toLowerCase(java.util.Locale.ROOT).startsWith("x-auth-"));
+                return downstream.getResponse().setComplete();
+            }
             assertThat(new InternalAuthSigner(SECRET).verify(headers.getFirst(AuthHeaders.USER_ID),
                     headers.getFirst(AuthHeaders.SID), headers.getFirst(AuthHeaders.TOKEN_VERSION),
                     headers.getFirst(AuthHeaders.TIMESTAMP), headers.getFirst(AuthHeaders.SIGNATURE))).isTrue();
@@ -46,6 +51,26 @@ class GatewayAuthenticationChainTest {
 
     @AfterEach
     void close() { context.close(); }
+
+    @Test
+    void publicEndpointSkipsJwtAndSessionEvenWithInvalidBearerAndForgedIdentity() {
+        client.get().uri("/api/system/public/test").exchange().expectStatus().isOk();
+        client.get().uri("/api/system/public/test")
+                .header("Authorization", "Bearer invalid")
+                .header(AuthHeaders.USER_ID, "forged")
+                .exchange().expectStatus().isOk();
+        verifyNoInteractions(sessions);
+        verify(context.getBean(ReactiveJwtDecoder.class), never()).decode(anyString());
+    }
+
+    @Test
+    void onlyFixedPublicPathLevelIsAnonymous() {
+        for (String path : new String[]{"/api/system/user/public/test", "/api/system/public/test/other",
+                "/system/public/test", "/api/system/publicity/test"}) {
+            client.get().uri(path).exchange().expectStatus().isUnauthorized();
+        }
+        verifyNoInteractions(sessions);
+    }
 
     @Test
     void jwtAndActiveSessionProduceSignedIdentity() {

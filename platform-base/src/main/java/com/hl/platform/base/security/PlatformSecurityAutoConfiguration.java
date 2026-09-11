@@ -92,7 +92,9 @@ public class PlatformSecurityAutoConfiguration {
                     .addFilterBefore(filter, AnonymousAuthenticationFilter.class)
                     .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(entryPoint)
                             .accessDeniedHandler(deniedHandler))
-                    .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                    .authorizeHttpRequests(auth -> auth
+                            .requestMatchers(InternalAuthenticationFilter.PUBLIC_API).permitAll()
+                            .anyRequest().authenticated())
                     .build();
         }
     }

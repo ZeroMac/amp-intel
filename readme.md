@@ -20,6 +20,44 @@ $env:CODEGEN_DB_PASSWORD="hlpassword"
 
 ## 权限声明（认证逻辑已下沉到 platform-base）
 
+### 统一匿名接口规则
+
+匿名接口固定使用 Gateway 外部路径 `/api/*/public/*`、Service 内部路径
+`/*/public/*`。每个 `*` 只匹配一层，`public` 的位置固定，不使用 `**`。
+
+例如业务服务中声明：
+
+```java
+@RestController
+@RequestMapping("/system/public")
+public class PublicController {
+    @GetMapping("/test")
+    public String test() {
+        return "ok";
+    }
+}
+```
+
+Gateway 路由需将 `/api/system/public/test` 转发为 `/system/public/test`
+（例如剥离 `/api` 前缀）。安全规则不负责创建路由或重写路径。
+
+| 路径 | 是否属于匿名规则 |
+| --- | --- |
+| Gateway `/api/system/public/test` | 是 |
+| Service `/system/public/test` | 是 |
+| Gateway `/api/system/user/public/test` | 否 |
+| Gateway `/api/system/public/test/other` | 否 |
+| Service `/system/user/public/test` | 否 |
+| Service `/system/public/test/other` | 否 |
+
+匹配的请求在 Gateway 不解析 Bearer Token、不查询 Redis Session；转发时仍清除客户端
+内部身份 Header。base 使用同一 Service 路径匹配器放行并跳过内部 Header、签名和 Redis
+Authority 校验，不恢复用户身份。无需添加匿名注解或服务白名单配置。
+方法上的 `@PreAuthorize` 仍然有效，匿名路径不会绕过方法权限声明。
+如业务自定义 SecurityFilterChain，需要自行保留该匿名路径的 `permitAll()` 规则。
+
+### 业务权限声明
+
 Gateway 验证 JWT 和 Redis Session，向下游传递带签名的 userId、sid、tokenVersion。
 platform-base 自动完成 Header 验签、Redis Authority 装载、Authentication / SecurityContext
 建立，并开启 `@EnableMethodSecurity`。业务服务直接通过 `@PreAuthorize` 声明权限。

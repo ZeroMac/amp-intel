@@ -9,11 +9,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 public class InternalAuthenticationFilter extends OncePerRequestFilter {
+    static final RequestMatcher PUBLIC_API = PathPatternRequestMatcher.withDefaults()
+            .matcher(PublicApiPaths.SERVICE);
     private final AuthorityCacheReader authorityCacheReader;
     private final InternalAuthSigner signer;
     private final AuthenticationEntryPoint authenticationEntryPoint;
@@ -23,6 +27,11 @@ public class InternalAuthenticationFilter extends OncePerRequestFilter {
         this.authorityCacheReader = authorityCacheReader;
         this.signer = signer;
         this.authenticationEntryPoint = authenticationEntryPoint;
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return PUBLIC_API.matches(request);
     }
 
     @Override
