@@ -1,3 +1,7 @@
+security:
+  internal:
+    secret: ${INTERNAL_AUTH_SECRET}
+
 spring:
   application:
     name: system-service

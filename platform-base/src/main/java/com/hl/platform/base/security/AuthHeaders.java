@@ -5,6 +5,8 @@ public final class AuthHeaders {
     public static final String USER_ID = "X-Auth-User-Id";
     public static final String SID = "X-Auth-Sid";
     public static final String TOKEN_VERSION = "X-Auth-Token-Version";
+    public static final String TIMESTAMP = "X-Auth-Timestamp";
+    public static final String SIGNATURE = "X-Auth-Signature";
 
     private AuthHeaders() {
     }

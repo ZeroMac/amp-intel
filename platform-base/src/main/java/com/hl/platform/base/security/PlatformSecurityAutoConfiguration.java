@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import tools.jackson.databind.ObjectMapper;
 
-@AutoConfiguration
+@AutoConfiguration(afterName = "org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration")
 @ConditionalOnClass({StringRedisTemplate.class, ObjectMapper.class})
 public class PlatformSecurityAutoConfiguration {
 

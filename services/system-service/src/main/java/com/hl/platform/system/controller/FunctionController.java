@@ -2,6 +2,7 @@ package com.hl.platform.system.controller;
 
 import com.hl.platform.system.service.FunctionService;
 import com.hl.platform.system.vo.FunctionVO;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,7 @@ public class FunctionController {
     }
 
     @GetMapping("/{parentId}/children")
+    @PreAuthorize("hasAuthority('sys:func:read')")
     public List<FunctionVO> listChildren(@PathVariable Long parentId) {
         return functionService.listChildrenByParentId(parentId);
     }
