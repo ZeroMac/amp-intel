@@ -13,6 +13,8 @@ public class FunctionVO {
 
     private String funcTitle;
 
+    private String authority;
+
     private String funcUrl;
 
     private Integer funcType;
@@ -50,6 +52,14 @@ public class FunctionVO {
     public void setFuncTitle(String funcTitle) {
         this.funcTitle = funcTitle;
     }
+
+    public String getAuthority(){
+        return authority;
+    }
+
+    public void setAuthority(String authority){
+        this.authority = authority;
+    } 
 
     public String getFuncUrl() {
         return funcUrl;

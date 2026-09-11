@@ -41,6 +41,10 @@ public class Function implements Serializable {
     private String functitle;
 
     /**
+     * 权限标记
+     */
+    private String authority;
+    /**
      * 地址
      */
     private String funcurl;
@@ -101,6 +105,14 @@ public class Function implements Serializable {
     public void setFunctitle(String functitle) {
         this.functitle = functitle;
     }
+
+    public String getAuthority(){
+        return authority;
+    }
+
+    public void setAuthority(String authority){
+        this.authority = authority;
+    } 
 
     public String getFuncurl() {
         return funcurl;

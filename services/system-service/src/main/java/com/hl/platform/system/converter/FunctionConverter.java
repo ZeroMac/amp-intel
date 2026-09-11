@@ -17,6 +17,7 @@ public interface FunctionConverter {
     @Mapping(source = "parentid", target = "parentId")
     @Mapping(source = "funcname", target = "funcName")
     @Mapping(source = "functitle", target = "funcTitle")
+    @Mapping(source = "authority", target = "authority")
     @Mapping(source = "funcurl", target = "funcUrl")
     @Mapping(source = "functype", target = "funcType")
     @Mapping(source = "ordernum", target = "orderNum")
