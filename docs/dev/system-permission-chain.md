@@ -44,7 +44,15 @@ sid/tokenVersion 为 details。SecurityContext 仅在当前请求有效，不创
 禁止向客户端暴露这些 Header。签名在时间窗口内可以被重放，因此它不替代传输加密；
 system-service 不重复查询 Gateway 已校验的 session。
 
-未新增或修改 login / refresh / logout。自动化测试使用 Mock Redis 操作和会话服务，
+登出接口已迁移到 system-service：`POST /api/auth/logout`，成功返回 204。
+Gateway 通过 `system-auth-logout` 路由转发到 `lb://system-service`，保留原路径。
+system-service 从 SecurityContext 和公共 SessionIdentity 获取 userId、sid，
+仅删除 `auth:{userId}:session:{sid}`；Session 不存在也返回成功，其他 Session、
+authority 和 function 缓存不受影响。Redis 删除失败返回 503。
+服务端重复删除是幂等的；已登出 JWT 再经过 Gateway（包括再次调用 logout）时返回 401。
+Gateway 的 Session 服务只保留读取能力。未实现 login / refresh 或 JWT 黑名单。
+
+自动化测试使用 Mock Redis 操作和会话服务，
 不依赖本机 Redis、PostgreSQL 或 Nacos；覆盖 Gateway Security 链、身份转发、Servlet
 Security 链、真实 Redis authority 反序列化和方法权限拦截。
 

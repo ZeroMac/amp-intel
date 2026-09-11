@@ -100,6 +100,16 @@ class GatewayAuthenticationChainTest {
     }
 
     @Test
+    void revokedSessionRejectsSameJwtIncludingRepeatedLogout() {
+        when(sessions.get("100", "session-a")).thenReturn(
+                Mono.just(new AuthSession("100", "test", 2, "ACTIVE")), Mono.empty());
+        request().expectStatus().isOk();
+        request().expectStatus().isUnauthorized();
+        client.post().uri("/api/auth/logout").headers(headers -> headers.setBearerAuth("valid"))
+                .exchange().expectStatus().isUnauthorized();
+    }
+
+    @Test
     void sessionStoreFailureCannotReachDownstream() {
         when(sessions.get("100", "session-a")).thenReturn(Mono.error(new IllegalStateException("offline")));
         request().expectStatus().isEqualTo(503);
