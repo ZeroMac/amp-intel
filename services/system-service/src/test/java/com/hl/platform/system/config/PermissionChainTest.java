@@ -8,6 +8,9 @@ import com.hl.platform.base.security.AuthHeaders;
 import com.hl.platform.base.security.AuthorityCacheReader;
 import com.hl.platform.base.security.InternalAuthSigner;
 import com.hl.platform.base.security.RedisAuthorityCacheReader;
+import com.hl.platform.base.security.SessionIdentity;
+import com.hl.platform.base.security.PlatformSecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import com.hl.platform.system.controller.FunctionController;
 import com.hl.platform.system.service.FunctionService;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,7 +60,7 @@ class PermissionChainTest {
             var authentication = SecurityContextHolder.getContext().getAuthentication();
             assertThat(authentication.getName()).isEqualTo("100");
             assertThat(authentication.getDetails())
-                    .isEqualTo(new InternalAuthenticationFilter.SessionIdentity("session-a", 2));
+                    .isEqualTo(new SessionIdentity("session-a", 2));
             return List.of();
         });
         mvc.perform(signed(signer)).andExpect(status().isOk());
@@ -124,7 +127,8 @@ class PermissionChainTest {
 
     @Configuration
     @EnableWebMvc
-    @Import({SecurityConfig.class, FunctionController.class})
+    @Import(FunctionController.class)
+    @ImportAutoConfiguration(PlatformSecurityAutoConfiguration.class)
     static class TestConfig {
         @Bean FunctionService functionService() { return mock(FunctionService.class); }
         @Bean @SuppressWarnings("unchecked")

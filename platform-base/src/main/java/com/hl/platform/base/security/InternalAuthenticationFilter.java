@@ -1,15 +1,14 @@
-package com.hl.platform.system.config;
+package com.hl.platform.base.security;
 
 import java.io.IOException;
 import java.util.Collections;
-import com.hl.platform.base.security.AuthHeaders;
-import com.hl.platform.base.security.AuthorityCacheReader;
-import com.hl.platform.base.security.InternalAuthSigner;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -17,10 +16,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class InternalAuthenticationFilter extends OncePerRequestFilter {
     private final AuthorityCacheReader authorityCacheReader;
     private final InternalAuthSigner signer;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
 
-    public InternalAuthenticationFilter(AuthorityCacheReader authorityCacheReader, InternalAuthSigner signer) {
+    public InternalAuthenticationFilter(AuthorityCacheReader authorityCacheReader, InternalAuthSigner signer,
+            AuthenticationEntryPoint authenticationEntryPoint) {
         this.authorityCacheReader = authorityCacheReader;
         this.signer = signer;
+        this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
     @Override
@@ -32,7 +34,8 @@ public class InternalAuthenticationFilter extends OncePerRequestFilter {
         String version = singleHeader(request, AuthHeaders.TOKEN_VERSION);
         if (!signer.verify(userId, sid, version, singleHeader(request, AuthHeaders.TIMESTAMP),
                 singleHeader(request, AuthHeaders.SIGNATURE))) {
-            writeError(response, 401, "Unauthorized");
+            authenticationEntryPoint.commence(request, response,
+                    new BadCredentialsException("Invalid internal authentication headers"));
             return;
         }
         try {
@@ -66,5 +69,4 @@ public class InternalAuthenticationFilter extends OncePerRequestFilter {
         response.getWriter().write("{\"code\":" + status + ",\"message\":\"" + message + "\"}");
     }
 
-    public record SessionIdentity(String sid, long tokenVersion) { }
 }

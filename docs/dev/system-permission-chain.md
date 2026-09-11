@@ -1,5 +1,16 @@
 # system-service 权限验证链路
 
+服务端通用认证由 `platform-base.security.PlatformSecurityAutoConfiguration` 自动装配。
+`InternalAuthenticationFilter` 和独立公共模型 `SessionIdentity` 位于 platform-base；
+system-service 只保留业务接口的 `@PreAuthorize` 权限声明，无需自行配置 Filter 或 SecurityConfig。
+
+默认提供 `InternalAuthSigner`、`AuthorityCacheReader`、`InternalAuthenticationFilter`、
+`AuthenticationEntryPoint`、`AccessDeniedHandler` 和无状态 `SecurityFilterChain`。
+业务服务可声明同类型 Bean 覆盖默认实现；自定义 SecurityFilterChain 时由业务配置负责
+选择是否加入公共 Filter。Filter 的 Servlet 容器自动注册已禁用，仅在 Security 链中执行。
+方法安全和 Filter/安全链配置仅对 Servlet Web 应用生效，Gateway 的 WebFlux 安全链保持独立。
+新增 Servlet/Security 编译依赖均为 optional，消费服务仍需声明自身所需的 Starter。
+
 Gateway 验证 JWT 和 Redis session 后，从已认证 JWT 的 `sub/sid/ver` 写入
 `X-Auth-User-Id`、`X-Auth-Sid`、`X-Auth-Token-Version`。转发前删除客户端所有
 `X-Auth-*` Header（不区分大小写），不传 authority 列表。

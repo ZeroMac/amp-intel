@@ -1,4 +1,4 @@
-package com.hl.platform.system.config;
+package com.hl.platform.base.security;
 
 import com.hl.platform.base.security.AuthorityCacheReader;
 import com.hl.platform.base.security.PlatformSecurityAutoConfiguration;
